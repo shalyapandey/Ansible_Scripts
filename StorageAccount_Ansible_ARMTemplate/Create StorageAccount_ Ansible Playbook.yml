@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    var_storagename: "ansiblestoraged"
+    var_storagetype: "Standard_LRS"
+    var_templatelink: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/Create StorageAccount.json"
+    var_location: "westeurope"
+    var_resource_group_nameMyRG: "MyRG"
+  tasks:
+    - name: Create Storage Account
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            storageaccounttype:
+                value: '{{var_storagetype}}'
+            storageaccountname:
+                value: '{{var_storagename}}'
+        template_link: '{{var_templatelink}}'
+      register: azure
