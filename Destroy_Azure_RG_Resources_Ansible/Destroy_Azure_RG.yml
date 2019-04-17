@@ -1,0 +1,10 @@
+# Destroy a template deployment
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Destroy Azure Deploy
+      azure_rm_deployment:
+        state: absent
+        resource_group_name: ansible-rg
