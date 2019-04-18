@@ -1,0 +1,55 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    var_storagename: "ansiblestoraged"
+    var_storagetype: "Standard_LRS"
+    var_templatelink_Storage: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateStorageAccount.json"
+    var_templatelink_KeyVault: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateKeyVault.json"
+    var_location: "westeurope"
+    var_resource_group_nameMyRG: "MyRGTest"
+    var_keyvault: testkvasible
+    var_ObjectID: d460a17a-f102-4302-9f42-ae060868df86
+    var_sku: Standard
+    var_TenantID: 7cdb4252-05f6-471a-92bd-ff25aa0974bf
+    var_secretName: mysecret
+    var_secretvalue: Password!1234
+  tasks:
+    - name: Create Storage Account
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            storageaccounttype:
+                value: '{{var_storagetype}}'
+            storageaccountname:
+                value: '{{var_storagename}}'
+        template_link: '{{var_templatelink_Storage}}'
+      register: astorage
+
+    - name: Create Key Vault
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            KeyVaultName:
+                value: '{{var_keyvault}}'
+            ObjectID:
+                value: '{{var_ObjectID}}'
+            sku:
+                value: '{{var_sku}}'
+            tenantId:
+                 value: '{{var_TenantID}}'
+            secretName:
+                value: '{{var_secretName}}'
+            secretvalue:
+                value: '{{var_secretvalue}}'
+        template_link: '{{var_templatelink_KeyVault}}'
+      register: akeyvault

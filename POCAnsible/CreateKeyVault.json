@@ -1,0 +1,111 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"KeyVaultName": {
+			"type": "string"
+		},
+		"location": {
+			"type": "string"
+		},
+		"sku": {
+			"type": "string",
+			"defaultValue": "Standard",
+			"allowedValues": [
+				"Standard",
+				"Premium"
+			],
+			"metadata": {
+				"description": "Specifies whether the key vault is a standard vault or a premium vault."
+			}
+		},
+        "objectId": {
+			"type": "string",
+			"metadata": {
+				"description": "Specifies object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault."
+			}
+		},
+		"tenantId": {
+			"type": "string"
+		},
+		"secretName":{
+			"type": "string"
+		},
+		"secretValue":{
+			"type": "securestring"
+		}
+  },
+	"resources": [
+		{
+			"type": "Microsoft.KeyVault/vaults",
+			"name": "[parameters('KeyVaultName')]",
+			"apiVersion": "2016-10-01",
+			"location": "westeurope",
+			"tags": {},
+			"scale": null,
+			"properties": {
+				"sku": {
+					"name": "[parameters('sku')]",
+					"family": "A"
+				},
+				"tenantId": "[subscription().tenantId]",
+				"accessPolicies": [
+					{
+					"objectId": "[parameters('objectId')]",
+					"tenantId": "[parameters('tenantID')]",
+					"permissions": {
+						"secrets":[
+							"set",
+							"get",
+							"list",
+							"purge",
+							"backup",
+							"delete",
+							"recover",
+							"restore"
+						],
+						"certificates":[
+							"get",
+							"list",
+							"purge",
+							"create",
+							"delete",
+							"recover"
+						],
+						"keys":[
+							"get",
+							"list",
+							"sign",
+							"purge",
+							"backup",
+							"create",
+							"delete",
+							"update",
+							"verify",
+							"decrypt",
+							"encrypt",
+							"recover"
+						]
+					}
+				}
+				],
+				"enabledForDeployment": true,
+				"enabledForDiskEncryption": true,
+				"enabledForTemplateDeployment": true
+			},
+			"dependsOn": []
+		},
+		{
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "name": "[concat(parameters('keyVaultName'), '/', parameters('secretName'))]",
+      "apiVersion": "2018-02-14",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ],
+      "properties": {
+        "value": "[parameters('secretValue')]"
+      }
+    }
+	]
+}
