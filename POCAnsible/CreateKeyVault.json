@@ -48,7 +48,7 @@
 					"name": "[parameters('sku')]",
 					"family": "A"
 				},
-				"tenantId": "[subscription().tenantId]",
+				"tenantId": "[parameters('tenantID')]",
 				"accessPolicies": [
 					{
 					"objectId": "[parameters('objectId')]",
