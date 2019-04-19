@@ -87,7 +87,50 @@
 							"recover"
 						]
 					}
-				}
+				},
+				{
+					"tenantId": "7cdb4252-05f6-471a-92bd-ff25aa0974bf",
+					"objectId": "7cb377d6-2343-4361-9484-84a1a60a6528",
+					"permissions": {
+							"keys": [
+									"Get",
+									"List",
+									"Update",
+									"Create",
+									"Import",
+									"Delete",
+									"Recover",
+									"Backup",
+									"Restore"
+							],
+							"secrets": [
+									"Get",
+									"List",
+									"Set",
+									"Delete",
+									"Recover",
+									"Backup",
+									"Restore"
+							],
+							"certificates": [
+									"Get",
+									"List",
+									"Update",
+									"Create",
+									"Import",
+									"Delete",
+									"Recover",
+									"Backup",
+									"Restore",
+									"ManageContacts",
+									"ManageIssuers",
+									"GetIssuers",
+									"ListIssuers",
+									"SetIssuers",
+									"DeleteIssuers"
+							]
+					}
+			  }
 				],
 				"enabledForDeployment": true,
 				"enabledForDiskEncryption": true,
