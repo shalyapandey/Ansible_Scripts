@@ -8,7 +8,7 @@
 		"location": {
 			"type": "string"
 		},
-		"sku": {
+		"skuKV": {
 			"type": "string",
 			"defaultValue": "Standard",
 			"allowedValues": [

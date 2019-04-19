@@ -3,18 +3,31 @@
   connection: local
   gather_facts: true
   vars:
-    var_storagename: "ansiblestoraged"
+    var_storagename: "ansiblestoragedd"
     var_storagetype: "Standard_LRS"
     var_templatelink_Storage: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateStorageAccount.json"
+    
     var_templatelink_KeyVault: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateKeyVault.json"
     var_location: "westeurope"
     var_resource_group_nameMyRG: "MyRGTest"
-    var_keyvault: testkvasible
-    var_ObjectID: d460a17a-f102-4302-9f42-ae060868df86
-    var_sku: Standard
-    var_TenantID: 7cdb4252-05f6-471a-92bd-ff25aa0974bf
-    var_secretName: mysecret
-    var_secretvalue: Password!1234
+    var_keyvault: "testkvasible"
+    var_ObjectID: "d460a17a-f102-4302-9f42-ae060868df86"
+    var_skuKV: "Standard"
+    var_TenantID: "7cdb4252-05f6-471a-92bd-ff25aa0974bf"
+    var_secretName: "mysecret"
+    var_secretvalue: "Password!1234"
+
+    var_skuNameAP: S3
+    var_skuCapacityAP: 1
+    var_sqlAdministratorLogin: Admin1234
+    var_sqlAdministratorLoginPassword: Password@1234!
+    var_environments: Dev
+    var_hostingPlanName: testhostingplang
+    var_webSiteName: testwebapp
+    var_sqlserverName: testappsqlserverg
+    var_databaseName: sampledb
+    var_templatelink_WebApp: ""
+
   tasks:
     - name: Create Storage Account
       azure_rm_deployment:
@@ -44,7 +57,7 @@
             ObjectID:
                 value: '{{var_ObjectID}}'
             sku:
-                value: '{{var_sku}}'
+                value: '{{var_skuKV}}'
             tenantId:
                  value: '{{var_TenantID}}'
             secretName:
@@ -53,3 +66,32 @@
                 value: '{{var_secretvalue}}'
         template_link: '{{var_templatelink_KeyVault}}'
       register: akeyvault
+
+    - name: Create Azure Web App
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            skuNameAP:
+                value: '{{skuNameAP}}'
+            skuCapacityAP:
+                value: '{{var_skuCapacityAP}}'
+            sqlAdministratorLogin:
+                value: '{{sqlAdministratorLogin}}'
+            sqlAdministratorLoginPassword:
+                value: '{{var_sqlAdministratorLoginPassword}}'
+            environments:
+                value: '{{environments}}'
+            hostingPlanName:
+                value: '{{hostingPlanName}}'
+            webSiteName: 
+                value: '{{webSiteName}}'
+            sqlserverName:
+                value: '{{sqlserverName}}'
+            databaseName:
+                value: '{{databaseName}}'
+        template_link: '{{var_templatelink_KeyVault}}'
+      register: awebapp
