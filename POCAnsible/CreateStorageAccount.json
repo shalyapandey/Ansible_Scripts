@@ -23,24 +23,7 @@
         "name": "[parameters('storageaccounttype')]"
       },
       "kind": "StorageV2",
-      "properties": {
-          "encryption": {
-          "keyvaultproperties": {
-              "keyvaulturi": "https://testkvasible.vault.azure.net",
-              "keyname": "storagekey",
-              "keyversion": "61c69cad0dbf4691a9a449976f196699"
-            },
-             "services": {
-                    "file": {
-                            "enabled": true
-                      },
-                      "blob": {
-                            "enabled": true
-                      }
-                    },
-           "keySource": "Microsoft.Keyvault"
-            }
-       }
+      "properties": {}
     }
   ],
   "outputs": {

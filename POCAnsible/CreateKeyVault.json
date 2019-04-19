@@ -8,7 +8,7 @@
 		"location": {
 			"type": "string"
 		},
-		"skuKV": {
+		"sku": {
 			"type": "string",
 			"defaultValue": "Standard",
 			"allowedValues": [
@@ -19,7 +19,7 @@
 				"description": "Specifies whether the key vault is a standard vault or a premium vault."
 			}
 		},
-        "objectId": {
+    "objectId": {
 			"type": "string",
 			"metadata": {
 				"description": "Specifies object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault."

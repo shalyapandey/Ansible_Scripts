@@ -3,48 +3,31 @@
   connection: local
   gather_facts: true
   vars:
-    var_storagename: "ansiblestoragedd"
+    var_location: "westeurope"
+    var_storagename: "ansiblestoragedd1"
     var_storagetype: "Standard_LRS"
     var_templatelink_Storage: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateStorageAccount.json"
     
     var_templatelink_KeyVault: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateKeyVault.json"
-    var_location: "westeurope"
     var_resource_group_nameMyRG: "MyRGTest"
-    var_keyvault: "testkvasible"
+    var_keyvault: "testkvasible1"
     var_ObjectID: "d460a17a-f102-4302-9f42-ae060868df86"
     var_skuKV: "Standard"
     var_TenantID: "7cdb4252-05f6-471a-92bd-ff25aa0974bf"
-    var_secretName: "mysecret"
+    var_secretName: "mysecret1"
     var_secretvalue: "Password!1234"
-
-    var_templatelink_Webapp: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/WebApp.json"
-    var_skuNameAP: S3
+    
+    var_templatelink_WebApp: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/WebApp.json"
+    var_skuNameAP: "S3"
     var_skuCapacityAP: 1
-    var_sqlAdministratorLogin: Admin1234
-    var_sqlAdministratorLoginPassword: Password@1234!
-    var_environments: Dev
-    var_hostingPlanName: testhostingplang
-    var_webSiteName: testwebapp
-    var_sqlserverName: testappsqlserverg
-    var_databaseName: sampledb
-    var_templatelink_WebApp: ""
-
+    var_sqlAdministratorLogin: "Admin1234"
+    var_sqlAdministratorLoginPassword: "Password@1234!"
+    var_hostingPlanName: "testhostingplang"
+    var_webSiteName: "testwebappd11"
+    var_sqlserverName: "testappsqlserverg"
+    var_databaseName: "sampledb"
+    
   tasks:
-    - name: Create Storage Account
-      azure_rm_deployment:
-        state: present
-        resource_group_name: '{{var_resource_group_nameMyRG}}'
-        location: '{{var_location}}'
-        parameters:
-            location: 
-                value: '{{var_location}}'
-            storageaccounttype:
-                value: '{{var_storagetype}}'
-            storageaccountname:
-                value: '{{var_storagename}}'
-        template_link: '{{var_templatelink_Storage}}'
-      register: astorage
-
     - name: Create Key Vault
       azure_rm_deployment:
         state: present
@@ -68,6 +51,21 @@
         template_link: '{{var_templatelink_KeyVault}}'
       register: akeyvault
 
+    - name: Create Storage Account
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            storageaccounttype:
+                value: '{{var_storagetype}}'
+            storageaccountname:
+                value: '{{var_storagename}}'
+        template_link: '{{var_templatelink_Storage}}'
+      register: astorage
+
     - name: Create Azure Web App
       azure_rm_deployment:
         state: present
@@ -84,8 +82,6 @@
                 value: '{{var_sqlAdministratorLogin}}'
             sqlAdministratorLoginPassword:
                 value: '{{var_sqlAdministratorLoginPassword}}'
-            environments:
-                value: '{{var_environments}}'
             hostingPlanName:
                 value: '{{var_hostingPlanName}}'
             webSiteName: 
@@ -94,5 +90,5 @@
                 value: '{{var_sqlserverName}}'
             databaseName:
                 value: '{{var_databaseName}}'
-        template_link: '{{var_templatelink_Webapp}}'
+        template_link: '{{var_templatelink_WebApp}}'
       register: awebapp
