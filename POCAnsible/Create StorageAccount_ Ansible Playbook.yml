@@ -17,6 +17,7 @@
     var_secretName: "mysecret"
     var_secretvalue: "Password!1234"
 
+    var_templatelink_Webapp: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/WebApp.json"
     var_skuNameAP: S3
     var_skuCapacityAP: 1
     var_sqlAdministratorLogin: Admin1234
@@ -76,22 +77,22 @@
             location: 
                 value: '{{var_location}}'
             skuNameAP:
-                value: '{{skuNameAP}}'
+                value: '{{var_skuNameAP}}'
             skuCapacityAP:
                 value: '{{var_skuCapacityAP}}'
             sqlAdministratorLogin:
-                value: '{{sqlAdministratorLogin}}'
+                value: '{{var_sqlAdministratorLogin}}'
             sqlAdministratorLoginPassword:
                 value: '{{var_sqlAdministratorLoginPassword}}'
             environments:
-                value: '{{environments}}'
+                value: '{{var_environments}}'
             hostingPlanName:
-                value: '{{hostingPlanName}}'
+                value: '{{var_hostingPlanName}}'
             webSiteName: 
-                value: '{{webSiteName}}'
+                value: '{{var_webSiteName}}'
             sqlserverName:
-                value: '{{sqlserverName}}'
+                value: '{{var_sqlserverName}}'
             databaseName:
-                value: '{{databaseName}}'
-        template_link: '{{var_templatelink_KeyVault}}'
+                value: '{{var_databaseName}}'
+        template_link: '{{var_templatelink_Webapp}}'
       register: awebapp
