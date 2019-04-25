@@ -1,0 +1,126 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    var_location: "West US"
+    var_templatelink_QNAMaker: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/templateQNAMaker.json"
+    var_resource_group_QNAMaker: "TestQNAMAkerARM"
+    var_QNAMakername: "TestQNAMaker"
+    var_appName: "TestQNAMAkerAPP"
+    var_skuCS: "F0"
+    var_skuSS: "standard"
+    var_searchHostingMode: "Default"
+    var_locationAppInsite: "westeurope"
+    var_QNAMakernameSF: "serverfarmQNA"
+    
+    var_templatelink_WebBot: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/templateWebBot.json"
+    var_botEnv: "prod"
+    var_botId: "TestWebAppBotd"
+    var_sku: "F0"
+    var_kind: "sdk"
+    var_siteName: "testwebappbotd"
+    var_createNewStorage: true
+    var_storageAccountName: "testwebappbotdstorage"
+    var_storageAccountLocation: ""
+    var_storageAccountResourceId: ""
+    var_appId: "4eb466a0-d8cc-4bb2-9b4e-f9ac4e0efa57"
+    var_appSecret: "ruxhUEZZ8~;zrdVNX3302_!"
+    var_azureWebJobsBotFrameworkDirectLineSecret: ""
+    var_zipUrl: "https://bot-framework.azureedge.net/static/54857-bde4ac120c/bot-packages/v1.3.14/csharp-abs-webapp_qnabot_precompiled.zip"
+    var_proactiveZipUrl: ""
+    var_useAppInsights: true
+    var_appInsightsLocation: "westeurope"
+    var_createServerFarm: true
+    var_serverFarmLocation: "West Europe"
+    var_serverFarmSkuName: "F1"
+    var_serverFarmskuCapacity: 1
+    var_endpoint: ""
+    var_luisApiLocation: "Global"
+    var_botQueueName: "bot-queue"
+    var_serverFarmName: "webbotserverfarm"
+
+  tasks:
+    - name: Create QNA Maker
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_QNAMaker}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            QNAMakername:
+                value: '{{var_QNAMakername}}'
+            appName:
+                value: '{{var_appName}}'
+            skuCS:
+                value: '{{var_skuCS}}'
+            skuSS:
+                 value: '{{var_skuSS}}'
+            searchHostingMode:
+                value: '{{var_searchHostingMode}}'
+            locationAppInsite:
+                value: '{{var_locationAppInsite}}'
+            QNAMakernameSF: 
+                value: '{{var_QNAMakernameSF}}'
+        template_link: '{{var_templatelink_QNAMaker}}'
+      register: qnamaker
+ 
+    - name: Create Web Bot
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_QNAMaker}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            botEnv:
+                value: '{{var_botEnv}}'
+            botId:
+                value: '{{var_botId}}'
+            sku:
+                value: '{{var_sku}}'
+            kind:
+                value: '{{var_kind}}'
+            siteName:
+                value: '{{var_siteName}}'
+            createNewStorage:
+                value: '{{var_createNewStorage}}'
+            storageAccountName:
+                value: '{{var_storageAccountName}}'
+            storageAccountLocation:
+                value: '{{var_storageAccountLocation}}'
+            storageAccountResourceId:
+                value: '{{var_storageAccountResourceId}}'
+            appId:
+                value: '{{var_appId}}'
+            appSecret:
+                value: '{{var_appSecret}}'
+            azureWebJobsBotFrameworkDirectLineSecret:
+                value: '{{var_azureWebJobsBotFrameworkDirectLineSecret}}'
+            zipUrl:
+                value: '{{var_zipUrl}}'
+            proactiveZipUrl:
+                value: '{{var_proactiveZipUrl}}'
+            useAppInsights:
+                value: '{{var_useAppInsights}}'
+            appInsightsLocation:
+                value: '{{var_appInsightsLocation}}'
+            createServerFarm:
+                value: '{{var_createServerFarm}}'
+            serverFarmLocation:
+                value: '{{var_serverFarmLocation}}'
+            serverFarmSkuName: 
+                value: '{{var_serverFarmSkuName}}'
+            serverFarmskuCapacity:
+                value: '{{var_serverFarmskuCapacity}}'
+            serverFarmName:
+                value: '{{var_serverFarmName}}'
+            endpoint:
+                value: '{{var_endpoint}}'
+            luisApiLocation:
+                value: '{{var_luisApiLocation}}'
+            botQueueName:
+                value: '{{var_botQueueName}}'
+        template_link: '{{var_templatelink_WebBot}}'
+      register: webappbot
