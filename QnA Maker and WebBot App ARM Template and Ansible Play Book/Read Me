@@ -1,1 +1,22 @@
 Read Me
+Update below Variale from Playbook: (Get valur from apps that you register on app registartion- new app for each QNA MAker/WebBot)
+           (to get register app list, please visit: https://apps.dev.microsoft.com/#/appList)
+   var_appId: "4eb466a0-d8cc-4bb2-9b4e-f9ac4e0efa57"
+   var_appSecret: "ruxhUEZZ8~;zrdVNX3302_!"
+
+After creation of QnA Maker and WebBot:
+    1) Create Knowledgebase(KB) for QnA Maker
+    2) Publish KB
+    3) After Publish get below details:
+         POST /knowledgebases/................................./generateAnswer
+        Host: https://......................................./qnamaker
+        Authorization: EndpointKey ..................................
+        Content-Type: application/json
+        {"question":"<Your question>"}
+    4) Go to Azure Portal -> web Bot -> Configuration Setting
+    5) Put Above value in below filds:
+          QnAAuthKey
+          QnAEndpointHostName
+          QnAKnowledgebaseId
+    6) Test Wen Chat Bot
+        
