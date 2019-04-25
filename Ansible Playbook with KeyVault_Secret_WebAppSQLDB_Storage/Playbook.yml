@@ -1,0 +1,104 @@
+---
+- name: CREATE ARM Deployment PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    # Variables 'resgrp' and 'location' need to be provided at command line with arg --extra-vars
+    templateLinkWebAppSQLDB: 'https://raw.githubusercontent.com/mukeshf/Azure-Ansible/master/WebAppwithSQLDBPaaS.json'
+    templateLinkWebAppKeyVault: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-key-vault-secret-create/azuredeploy.json'
+    templateLinkWebAppStorageAccount: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-storage-account-service-encryption-create/azuredeploy.json' 
+    #paramsLink: 'https://raw.githubusercontent.com/nitinpokharna/ansible-azure-lab/master/azuredeploy.parameters.json'
+    # No parameters required for this template
+    #paramsLink: ''
+   
+  tasks:
+  - name: Create WebApp with SQL DB PaaS
+    azure_rm_deployment:
+        state: present
+        resource_group_name: 'RG_AnsibleProject'
+        # location seems to be not optional
+        location: 'Southeast Asia'
+        template_link: '{{ templateLinkWebAppSQLDB }}'
+        #parameters_link: '{{ paramsLink }}'
+        parameters:
+          skuName:
+            value: "F1"
+          skuCapacity:
+            value: 1
+          sqlAdministratorLogin:
+            value: "testadmin"
+          sqlAdministratorLoginPassword:
+            value: "Pass@1234567"
+
+  - name: Create KeyVault
+    azure_rm_deployment:
+        state: present
+        resource_group_name: 'RG_AnsibleProject'
+        # location seems to be not optional
+        location: 'Southeast Asia'
+        template_link: '{{ templateLinkWebAppKeyVault }}'
+        #parameters_link: '{{ paramsLink }}'
+        parameters:
+          keyVaultName:
+            value: "ansibleprojectkvzt"
+          enabledForDeployment:
+            value: False
+          enabledForDiskEncryption:
+            value: False
+          enabledForTemplateDeployment:
+            value: False
+          tenantId:
+            value: "c160a942-c869-429f-8a96-f8c8296d57db"
+          objectId:
+            value: "cc8228dc-8a36-4e14-87fd-648f62f2618b"
+          keysPermissions:
+            value: ["list"]
+          secretsPermissions:
+            value: ["list"]
+          skuName:
+            value: "Standard"
+          secretsObject:
+            value: {"secrets": [
+          {
+            "secretName": "exampleSecret1",
+            "secretValue": "secretVaule1"
+          },
+          {
+            "secretName": "exampleSecret2",
+            "secretValue": "secretValue2"
+          }
+        ]}
+
+  - name: Create Storage Account with Blob Encrypted
+    azure_rm_deployment:
+        state: present
+        resource_group_name: 'RG_AnsibleProject'
+        # location seems to be not optional
+        location: 'Southeast Asia'
+        template_link: '{{ templateLinkWebAppStorageAccount }}'
+        #parameters_link: '{{ paramsLink }}'
+        parameters:
+          storageAccountType:
+            value: "Standard_LRS"
+          blobEncryptionEnabled:
+            value: True
+          Location:
+            value: "Southeast Asia"
+
+  - name: AZ Login to Azure
+    shell: >
+          az login --service-principal
+          -u "895c7bfb-1565-490a-8f34-14caea306c6c"
+          -p "dFsxh90Pc3Bdr6y2tPZxuuITIkxERVxV3U5AQKnD8yY="
+          --tenant "c160a942-c869-429f-8a96-f8c8296d57db" && az account set --subscription "449ea803-4473-4be7-85e6-21c888bda95f"
+    #become_user: root
+    #become: yes
+
+  - name: Create SPN for WebApp and assign role
+    shell: >
+          az ad sp create-for-rbac -n "webSitezxgx45cl5jj6g"
+          #az ad sp create-for-rbac --role owner;
+          #az ad sp create-for-rbac -s 449ea803-4473-4be7-85e6-21c888bda95f
+          #az ad sp create-for-rbac --scopes /subscriptions/449ea803-4473-4be7-85e6-21c888bda95f
+    #become: yes
