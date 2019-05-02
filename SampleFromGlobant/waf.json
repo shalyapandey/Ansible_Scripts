@@ -1,0 +1,213 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"addressPrefix": {
+			"type": "string",
+			"metadata": {
+				"description": "Address prefix for the Virtual Network"
+			}
+		},
+		"virtualNetworkName": {
+			"type": "string"
+		},
+		"subnetName": {
+			"type": "string"
+		},
+		"applicationGatewayName": {
+			"type": "string"
+		},
+		"publicIPAddressName": {
+			"type": "string"
+		},
+		"subnetPrefix": {
+			"type": "string",
+		},
+		"applicationGatewaySize": {
+			"type": "string",
+			"allowedValues": [
+				"WAF_Medium",
+				"WAF_Large"
+			]
+		},
+		"capacity": {
+			"type": "int",
+			"allowedValues": [
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10
+			],
+			"metadata": {
+				"description": "Number of instances"
+			}
+		},
+		"wafEnabled": {
+			"type": "bool"
+		},
+		"wafMode": {
+			"type": "string",
+			"allowedValues": [
+				"Detection",
+				"Prevention"
+			]
+		},
+		"websiteName": {
+			"type": "string"
+		},
+		"wafRuleSetType": {
+			"type": "string",
+			"allowedValues": [
+				"OWASP"
+			]
+		},
+		"wafRuleSetVersion": {
+			"type": "string",
+			"allowedValues": [
+				"2.2.9",
+				"3.0"
+			]
+		},
+		"location": {
+			"type": "string",
+			"metadata": {
+				"description": "Location for all resources."
+			}
+		}
+	},
+	"variables": {
+		"applicationGatewayName": "[parameters('applicationGatewayName')]",
+		"publicIPAddressName": "[parameters('publicIPAddressName')]",
+		"virtualNetworkName": "[parameters('virtualNetworkName')]",
+		"subnetName": "[parameters('subnetName')]",
+		"subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('virtualNetworkName'), variables('subnetName'))]",
+		"publicIPRef": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+		"applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways', variables('applicationGatewayName'))]"
+	},
+	"resources": [{
+			"apiVersion": "2017-03-01",
+			"type": "Microsoft.Network/publicIPAddresses",
+			"name": "[variables('publicIPAddressName')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"publicIPAllocationMethod": "Dynamic"
+			}
+		},
+		{
+			"apiVersion": "2017-03-01",
+			"type": "Microsoft.Network/virtualNetworks",
+			"name": "[variables('virtualNetworkName')]",
+			"location": "[parameters('location')]",
+			"properties": {
+				"addressSpace": {
+					"addressPrefixes": [
+						"[parameters('addressPrefix')]"
+					]
+				},
+				"subnets": [{
+					"name": "[variables('subnetName')]",
+					"properties": {
+						"addressPrefix": "[parameters('subnetPrefix')]"
+					}
+				}]
+			}
+		},
+		{
+			"apiVersion": "2017-06-01",
+			"name": "[variables('applicationGatewayName')]",
+			"type": "Microsoft.Network/applicationGateways",
+			"location": "[parameters('location')]",
+			"dependsOn": [
+				"[variables('virtualNetworkName')]",
+				"[variables('publicIPAddressName')]"
+			],
+			"properties": {
+				"sku": {
+					"name": "[parameters('applicationGatewaySize')]",
+					"tier": "WAF",
+					"capacity": "[parameters('capacity')]"
+				},
+				"gatewayIPConfigurations": [{
+					"name": "appGatewayIpConfig",
+					"properties": {
+						"subnet": {
+							"id": "[variables('subnetRef')]"
+						}
+					}
+				}],
+				"frontendIPConfigurations": [{
+					"name": "appGatewayFrontendIP",
+					"properties": {
+						"PublicIPAddress": {
+							"id": "[variables('publicIPRef')]"
+						}
+					}
+				}],
+				"frontendPorts": [{
+					"name": "appGatewayFrontendPort",
+					"properties": {
+						"Port": 80
+					}
+				}],
+				"backendAddressPools": [{
+					"name": "appGatewayBackendPool",
+					"properties": {
+						"BackendAddresses": [{
+							"fqdn": "websiteName"
+						}]
+
+					}
+				}],
+				"backendHttpSettingsCollection": [{
+					"name": "appGatewayBackendHttpSettings",
+					"properties": {
+						"Port": 80,
+						"Protocol": "Http",
+						"CookieBasedAffinity": "Disabled"
+					}
+				}],
+				"httpListeners": [{
+					"name": "appGatewayHttpListener",
+					"properties": {
+						"FrontendIPConfiguration": {
+							"Id": "[concat(variables('applicationGatewayID'), '/frontendIPConfigurations/appGatewayFrontendIP')]"
+						},
+						"FrontendPort": {
+							"Id": "[concat(variables('applicationGatewayID'), '/frontendPorts/appGatewayFrontendPort')]"
+						},
+						"Protocol": "Http",
+						"SslCertificate": null
+					}
+				}],
+				"requestRoutingRules": [{
+					"Name": "rule1",
+					"properties": {
+						"RuleType": "Basic",
+						"httpListener": {
+							"id": "[concat(variables('applicationGatewayID'), '/httpListeners/appGatewayHttpListener')]"
+						},
+						"backendAddressPool": {
+							"id": "[concat(variables('applicationGatewayID'), '/backendAddressPools/appGatewayBackendPool')]"
+						},
+						"backendHttpSettings": {
+							"id": "[concat(variables('applicationGatewayID'), '/backendHttpSettingsCollection/appGatewayBackendHttpSettings')]"
+						}
+					}
+				}],
+				"webApplicationFirewallConfiguration": {
+					"enabled": "[parameters('wafEnabled')]",
+					"firewallMode": "[parameters('wafMode')]",
+					"ruleSetType": "[parameters('wafRuleSetType')]",
+					"ruleSetVersion": "[parameters('wafRuleSetVersion')]",
+					"disabledRuleGroups": []
+				}
+			}
+		}
+	]
+}

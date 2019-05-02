@@ -1,0 +1,161 @@
+- name: CREATE ARM Deployment PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    templateLink: 'https://nitinst.blob.core.windows.net/nitinblob/azuredeploysunday.json?st=2018-10-30T06%3A43%3A55Z&se=2018-11-28T06%3A43%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=O49BK2GFItjggNe2%2FtEsgifJuRzW59%2BUwrpbByMhpHk%3D'
+    templateLink1: 'https://nitinst.blob.core.windows.net/nitinblob/waf.json?st=2018-10-30T06%3A41%3A28Z&se=2018-11-28T06%3A41%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=7GCH4AcCqkk73rLukjGEMGBP3nDsfD6S6RvNLTYPRUM%3D'
+    var_location: "westeurope"
+    var_skuName: "F1"
+    var_skuCapacity: 1
+    var_env: "PROD"
+    #var_env: "DEV"
+    #var_env: "QA" 
+    var_cacheSKUName: "Basic"
+    var_cacheSKUCapacity: 1
+    var_applicationGatewaySize: "WAF_Medium"
+    var_tier: "Basic"
+    var_wafEnabled: True
+    var_wafMode: "Detection"
+    var_wafRuleSetType: "OWASP"
+    var_wafRuleSetVersion: "3.0"
+    var_maxSizeBytes: 268435456000
+    var_administratorLogin: "ENYadmin"
+    var_addressPrefix: "10.0.0.0/16"
+    var_subnetPrefix: "10.0.0.0/28"
+    var_capacity: 1
+    var_AZURE_RM_SUBSCRIPTIONID: "268e99fc-8fa3-4b4b-9055-24598924c68c"
+    var_administratorLoginPassword: "EYansible@1234"
+    var_collation: "SQL_Latin1_General_CP1_CI_AS"
+    var_cacheSKUFamily: "C"
+    Var_NamesDictionary:
+        Roles:
+          Networknames: "EYNW"
+          ResourceGroup: "ENYRGP"
+          SqlServer: "SQLP"
+          WebApp: "WAP"
+          Appinsight: "APPIN"
+          SqlDB: "DBP"
+          Cache: "CHP"
+        Locations:
+          westeurope: "WEURO"
+          eastus: "EUS"
+
+       
+  tasks:
+
+  - name: Generate Names
+    set_fact: 
+      var_virtualNetworkName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Networknames }}001"
+      var_subnetName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Networknames }}002"
+      var_applicationGatewayName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Networknames }}003"
+      var_publicIPAddressName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Networknames }}004"       
+      var_resource_group_name: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Networknames }}005"
+      var_hostingPlanName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}hostplan001"
+      var_cacheName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Cache }}001"
+      var_serverName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.SqlServer }}001"
+      var_appInsightsName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Appinsight }}001"
+      var_websiteName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.WebApp }}001"
+      var_databaseName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.SqlDB }}001"
+
+  - name: AZ Login to Azure
+    shell: >
+           az login --service-principal
+           -u "{{ AZURE_RM_CLIENTID | mandatory }}"
+           -p "{{ AZURE_RM_SECRET | mandatory }}"
+           --tenant "{{ AZURE_RM_TENANTID | mandatory }}"
+
+  
+  
+  - name: Deploy ARM template
+    azure_rm_deployment:
+        state: present
+        location: "westeurope"
+        resource_group_name: '{{ var_resource_group_name }}'
+        # location seems to be not optional
+        client_id: "{{ AZURE_RM_CLIENTID }}"
+        secret: "{{ AZURE_RM_SECRET }}"
+        tenant: "{{ AZURE_RM_TENANTID }}"
+        subscription_id: "{{ var_AZURE_RM_SUBSCRIPTIONID }}"
+        template_link: '{{ templateLink }}'
+        parameters:
+          skuName:
+            value: '{{ var_skuName }}'
+          skuCapacity:
+            value: '{{ var_skuCapacity }}'
+          cacheSKUName:
+            value: '{{ var_cacheSKUName }}'
+          cacheSKUFamily:
+            value: '{{ var_cacheSKUFamily }}'
+          cacheSKUCapacity:
+            value: '{{ var_cacheSKUCapacity }}'
+          hostingPlanName:
+            value: '{{ var_hostingPlanName }}'
+          collation:
+            value: '{{var_collation }}'
+          databaseName:
+            value: '{{ var_databaseName | lower }}'
+          tier:
+            value: '{{ var_tier }}'
+          location: 
+            value: '{{ var_location }}'
+          maxSizeBytes:
+            value: '{{ var_maxSizeBytes }}'
+          cacheName:
+            value: '{{ var_cacheName }}'
+          serverName: 
+            value: '{{ var_serverName | lower }}'          
+          appInsightsName: 
+            value: '{{ var_appInsightsName }}'
+          websiteName:
+            value: '{{ var_websiteName }}'
+          administratorLogin:
+            value: '{{ var_administratorLogin }}'
+          administratorLoginPassword:
+            value: '{{ var_administratorLoginPassword }}'
+
+  - name: Deploy ARM template
+    azure_rm_deployment:
+        state: present
+        location: "westeurope"
+        resource_group_name: '{{ var_resource_group_name }}'
+        # location seems to be not optional
+        client_id: "{{ AZURE_RM_CLIENTID }}"
+        secret: "{{ AZURE_RM_SECRET }}"
+        tenant: "{{ AZURE_RM_TENANTID }}"
+        subscription_id: "{{ var_AZURE_RM_SUBSCRIPTIONID }}"
+        template_link: '{{ templateLink1 }}'
+        parameters:
+          addressPrefix:
+            value: '{{ var_addressPrefix }}'
+          virtualNetworkName:
+            value: '{{ var_virtualNetworkName }}'
+          subnetName:
+            value: '{{ var_subnetName }}'
+          capacity: 
+            value: '{{ var_capacity }}'
+          applicationGatewayName:
+            value: '{{ var_applicationGatewayName }}'
+          publicIPAddressName:
+            value: '{{ var_publicIPAddressName }}'
+          subnetPrefix:
+            value: '{{ var_subnetPrefix }}'
+          applicationGatewaySize:
+            value: '{{ var_applicationGatewaySize }}'
+          capacity: 
+            value: '{{ var_capacity }}'
+          websiteName:
+            value: '{{ var_websiteName }}'
+          wafEnabled:
+            value: '{{ var_wafEnabled }}'
+          wafMode: 
+            value: '{{ var_wafMode }}'
+          wafRuleSetType:
+            value: '{{ var_wafRuleSetType }}'
+          wafRuleSetVersion:
+            value: '{{ var_wafRuleSetVersion }}'
+          location: 
+            value: '{{ var_location }}'
+
+  
+          

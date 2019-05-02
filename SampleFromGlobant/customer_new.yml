@@ -1,0 +1,172 @@
+---
+- name: CREATE ARM Deployment PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: True
+  vars:
+    # Variables 'resgrp' and 'location' need to be provided at command line with arg --extra-vars
+    #var_env: "PROD"
+    #var_env: "DEV"
+    #var_env: "QA" 
+    templatelink: 'https://nitinst.blob.core.windows.net/nitinblob/azuredeployqna.json?st=2018-10-30T17%3A02%3A46Z&se=2018-11-28T17%3A02%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=2OgZgghs9eh4zoVgSXLM4db5mbMpBvAma%2F3KXZS4Yvo%3D'
+    templateLink1: 'https://nitinst.blob.core.windows.net/nitinblob/azuredeploybotdb.json?st=2018-10-30T17%3A01%3A30Z&se=2018-11-28T17%3A01%3A00Z&sp=rl&sv=2018-03-28&sr=b&sig=8P4ia%2BoT4jPdIBuHht3UzpCRI4d6l70h31iaipTZuow%3D'
+    var_zipUrl: "https://connectorprod.blob.core.windows.net/bot-packages/csharp-abs-webapp_qnabot_precompiled.zip"
+    var_location: "westeurope"
+    var_qnalocation: "westus"
+    var_kind: "sdk"
+    #var_sku: "F0"
+    var_appSecret: "vC/FoAE@9rqCvH|l"
+    var_createNewStorage: true
+    var_storageAccountResourceId: ""
+    var_useAppInsights: true
+    var_AZURE_RM_SUBSCRIPTIONID: "268e99fc-8fa3-4b4b-9055-24598924c68c"
+    var_appInsightsLocation: "westeurope"
+    var_createServerFarm: true
+    var_serverFarmLocation: "westeurope"
+    var_azureWebJobsBotFrameworkDirectLineSecret: ""
+    var_location2: "westeurope"
+    var_location3: "westeurope"
+    var_location4: "westeurope"
+    #var_sku2: "free"
+    var_searchHostingMode: "default"
+    var_administratorLogin: "eyadmin"
+    var_administratorLoginPassword: "Password12345!"
+    var_collation: "SQL_Latin1_General_CP1_CI_AS"
+    #var_tier: "standard"
+    #var_skuName: "S0"
+    var_maxSizeBytes: 268435456000
+    var_sampleName: ""
+    var_zoneRedundant: false
+    var_licenseType: ""
+    Var_NamesDictionary:
+        Roles:
+          Bot: "CHATBOT"
+          StorageAccount: "BOTST"
+          ResourceGroup: "RSGC"
+          SqlServer: "SQLC"
+          WebApp: "WAC"
+          QNAmaker: "QNAC"
+          QNAApp: "QNAAC"
+          SqlDB: "DBC"
+          Cache: "CHC"
+        Locations:
+          westeurope: "WEURO"  
+  tasks:
+
+  - name: AZ Login to Azure
+    shell: >
+           az login --service-principal
+           -u "{{ AZURE_RM_CLIENTID | mandatory }}"
+           -p "{{ AZURE_RM_SECRET | mandatory }}"
+           --tenant "{{ AZURE_RM_TENANTID | mandatory }}"
+
+  - name: Generate Names
+    set_fact: 
+      var_resource_group_name: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.ResourceGroup }}001"
+      var_botId: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.Bot }}nitin001"
+      var_siteName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.WebApp }}13001"
+      var_appId: "{{ ansible_date_time.iso8601_micro | to_uuid }}"
+      var_storageAccountName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.StorageAccount }}rf001"
+      var_name: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.QNAmaker }}001"
+      var_appName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.QNAApp }}001"
+      var_serverName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.SqlServer }}001"
+      var_databaseName: "{{ Var_NamesDictionary.Locations[var_location] }}{{ var_env }}{{ Var_NamesDictionary.Roles.SqlDB }}001"
+      
+  - set_fact:
+      var_serverFarmId: "/subscriptions/268e99fc-8fa3-4b4b-9055-24598924c68c/resourceGroups/{{ var_resource_group_name }}/providers/Microsoft.Web/serverfarms/newappplan"
+
+  - name: Creating webapp bot with SQL DB
+    azure_rm_deployment:
+        state: present
+        location: "{{ var_location_rg }}"
+        client_id: "{{ AZURE_RM_CLIENTID }}"
+        secret: "{{ AZURE_RM_SECRET }}"
+        tenant: "{{ AZURE_RM_TENANTID }}"
+        subscription_id: "{{ var_AZURE_RM_SUBSCRIPTIONID }}"
+        resource_group_name: '{{ var_resource_group_name }}'
+        parameters:
+          administratorLogin:
+              value: '{{ var_administratorLogin }}' 
+          administratorLoginPassword:
+              value:  "{{ var_administratorLoginPassword }}"
+          databaseName:
+              value: '{{ var_databaseName | lower }}'
+          tier:
+              value: '{{ var_tier }}'
+          skuName:
+              value: '{{ var_skuName }}'
+          location:
+              value: '{{ var_location }}'
+          maxSizeBytes:
+              value: '{{ var_maxSizeBytes }}'
+          sampleName:
+              value: '{{ var_sampleName }}'
+          serverName:
+              value: '{{ var_serverName | lower }}'
+          zoneRedundant:
+              value: '{{ var_zoneRedundant }}'
+          licenseType:
+              value: '{{ var_licenseType }}'
+          zipUrl: 
+              value: '{{ var_zipUrl }}'
+          botId: 
+              value: '{{ var_botId }}'
+          kind: 
+              value: '{{ var_kind }}'
+          sku: 
+              value: '{{ var_skubot }}'
+          siteName: 
+              value: '{{ var_siteName }}'
+          appId: 
+              value: '{{ var_appId }}'
+          appSecret: 
+              value: '{{var_appSecret }}'
+          createNewStorage: 
+              value: '{{ var_createNewStorage }}'
+          storageAccountName: 
+              value: '{{ var_storageAccountName }}'
+          storageAccountResourceId: 
+              value: '{{ var_storageAccountResourceId }}'
+          useAppInsights: 
+              value: '{{ var_useAppInsights }}'
+          appInsightsLocation:
+              value: '{{ var_appInsightsLocation }}'
+          createServerFarm: 
+              value: '{{ var_createServerFarm }}'
+          serverFarmId: 
+              value: '{{ var_serverFarmId }}'
+          serverFarmLocation: 
+              value: '{{ var_serverFarmLocation }}'
+          azureWebJobsBotFrameworkDirectLineSecret: 
+              value: '{{ var_azureWebJobsBotFrameworkDirectLineSecret }}'
+        template_link: '{{ templateLink1 }}'
+
+  - name: Creating QNA maker
+    azure_rm_deployment:
+        state: present
+        location: "{{ var_location_rg }}"
+        resource_group_name: '{{ var_resource_group_name }}'
+        client_id: "{{ AZURE_RM_CLIENTID }}"
+        secret: "{{ AZURE_RM_SECRET }}"
+        tenant: "{{ AZURE_RM_TENANTID }}"
+        subscription_id: "{{ var_AZURE_RM_SUBSCRIPTIONID }}"
+        parameters:
+          name: 
+              value: '{{ var_name }}'
+          appName:
+              value: '{{ var_appName }}'
+          location:
+              value: '{{ var_qnalocation }}'
+          location2: 
+              value: '{{ var_location2 }}'
+          location3: 
+              value: '{{ var_location3 }}'
+          location4: 
+              value: '{{ var_location4 }}'
+          sku: 
+              value: '{{ var_sku }}'
+          sku2: 
+              value: '{{ var_sku2 }}'
+          searchHostingMode: 
+              value: '{{ var_searchHostingMode }}'
+        template_link: '{{ templatelink }}'
