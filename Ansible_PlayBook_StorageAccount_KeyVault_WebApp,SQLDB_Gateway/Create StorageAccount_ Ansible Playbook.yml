@@ -1,0 +1,127 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    var_location: "westeurope"
+    var_storagename: "ansiblestoragedd1"
+    var_storagetype: "Standard_LRS"
+    var_templatelink_Storage: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateStorageAccount.json"
+    
+    var_templatelink_KeyVault: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateKeyVault.json"
+    var_resource_group_nameMyRG: "MyRGTest"
+    var_keyvault: "testkvasible1"
+    var_ObjectID: "d460a17a-f102-4302-9f42-ae060868df86"
+    var_skuKV: "Standard"
+    var_TenantID: "7cdb4252-05f6-471a-92bd-ff25aa0974bf"
+    var_secretName: "mysecret1"
+    var_secretvalue: "Password!1234"
+    
+    var_templatelink_WebApp: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/WebApp.json"
+    var_skuNameAP: "S3"
+    var_skuCapacityAP: 1
+    var_sqlAdministratorLogin: "Admin1234"
+    var_sqlAdministratorLoginPassword: "Password@1234!"
+    var_hostingPlanName: "testhostingplang"
+    var_webSiteName: "testwebappd11"
+    var_sqlserverName: "testappsqlserverg"
+    var_databaseName: "sampledb"
+
+
+    var_templatelink_Gateway: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/gatewaydeploy.json"
+    var_addressPrefix: "10.0.0.0/16"
+    var_subnetPrefix: "10.0.0.0/28"
+    var_applicationGatewaySize: "Standard_Medium"
+    var_capacity: 1
+    var_azureWebApp1: "testwebappd11.azurewebsites.net"
+    var_probeEnabled: true
+   
+    
+  tasks:
+    - name: Create Key Vault
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            KeyVaultName:
+                value: '{{var_keyvault}}'
+            ObjectID:
+                value: '{{var_ObjectID}}'
+            sku:
+                value: '{{var_skuKV}}'
+            tenantId:
+                 value: '{{var_TenantID}}'
+            secretName:
+                value: '{{var_secretName}}'
+            secretvalue:
+                value: '{{var_secretvalue}}'
+        template_link: '{{var_templatelink_KeyVault}}'
+      register: akeyvault
+
+    - name: Create Storage Account
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            storageaccounttype:
+                value: '{{var_storagetype}}'
+            storageaccountname:
+                value: '{{var_storagename}}'
+        template_link: '{{var_templatelink_Storage}}'
+      register: astorage
+
+    - name: Create Azure Web App
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            skuNameAP:
+                value: '{{var_skuNameAP}}'
+            skuCapacityAP:
+                value: '{{var_skuCapacityAP}}'
+            sqlAdministratorLogin:
+                value: '{{var_sqlAdministratorLogin}}'
+            sqlAdministratorLoginPassword:
+                value: '{{var_sqlAdministratorLoginPassword}}'
+            hostingPlanName:
+                value: '{{var_hostingPlanName}}'
+            webSiteName: 
+                value: '{{var_webSiteName}}'
+            sqlserverName:
+                value: '{{var_sqlserverName}}'
+            databaseName:
+                value: '{{var_databaseName}}'
+        template_link: '{{var_templatelink_WebApp}}'
+      register: awebapp
+
+    - name: Create Gateway
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_nameMyRG}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            addressPrefix:
+                value: '{{var_addressPrefix}}'
+            subnetPrefix:
+                value: '{{var_subnetPrefix}}'
+            applicationGatewaySize:
+                value: '{{var_applicationGatewaySize}}'
+            capacity:
+                 value: '{{var_capacity}}'
+            azureWebApp1:
+                value: '{{var_azureWebApp1}}'
+            probeEnabled:
+                value: '{{var_probeEnabled}}'
+        template_link: '{{var_templatelink_Gateway}}'
+      register: akeyvault
