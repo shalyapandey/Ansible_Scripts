@@ -1,0 +1,6 @@
+**Used JSON, Ansible PlayBook YML File and Azure CLI az Commands**
+
+Create WebApp and Azure SQL Dayabase with JSON template  Call from Ansible Playbook.
+Add connection string of Azure SQL storage to WebApp with JSON template (Same JSON that use for deploying WebApp and SQL) Call from Ansible Playbook.
+Create Storage account with JSON template Call from Ansible Playbook
+Add connection string of Storage in Azure WebApp Config.
