@@ -1,0 +1,86 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+   
+    var_templatelink_WebApp: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/WebApp&SQLDB_SQLDB_Connection_String_to_WebApp_Config.json"
+    var_skuNameAP: "S3"
+    var_skuCapacityAP: 1
+    var_sqlAdministratorLogin: "Admin1234"
+    var_sqlAdministratorLoginPassword: "Password@1234!"
+    var_hostingPlanName: "testhostingplang"
+    var_webSiteName: "testwebappd11"
+    var_sqlserverName: "testappsqlserverg"
+    var_databaseName: "sampledb"
+
+    var_resource_group_name: "RGDDDD"
+    
+    var_storageaccounttype: "Standard_LRS"
+    var_storageaccountname: "mystorageaccount24"
+    var_location: "West Europe"
+    var_templatelink_StorageAccount: "https://csg576600b7b837x48aax854.blob.core.windows.net/templatecontainer/CreateStorageAccount.json"
+
+    AZURE_RM_CLIENTID: "6ce41814-8516-42db-93b0-bb803fb1d50c"
+    AZURE_RM_SECRET: "1fbe6390-1d83-4c41-83f2-0ab898d75d07"
+    AZURE_RM_TENANTID: "7cdb4252-05f6-471a-92bd-ff25aa0974bf"
+
+  tasks: 
+    - name: AZ Login to Azure
+      shell: >
+            az login --service-principal
+            -u "{{ AZURE_RM_CLIENTID | mandatory }}"
+            -p "{{ AZURE_RM_SECRET | mandatory }}"
+            --tenant "{{ AZURE_RM_TENANTID | mandatory }}"
+
+    - name: Create Azure Web and Add Connection String of SQLDB to Web App Configuration
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_name}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            skuNameAP:
+                value: '{{var_skuNameAP}}'
+            skuCapacityAP:
+                value: '{{var_skuCapacityAP}}'
+            sqlAdministratorLogin:
+                value: '{{var_sqlAdministratorLogin}}'
+            sqlAdministratorLoginPassword:
+                value: '{{var_sqlAdministratorLoginPassword}}'
+            hostingPlanName:
+                value: '{{var_hostingPlanName}}'
+            webSiteName: 
+                value: '{{var_webSiteName}}'
+            sqlserverName:
+                value: '{{var_sqlserverName}}'
+            databaseName:
+                value: '{{var_databaseName}}'
+        template_link: '{{var_templatelink_WebApp}}'
+      register: awebapp
+
+    - name: Create Storage Account
+      azure_rm_deployment:
+        state: present
+        resource_group_name: '{{var_resource_group_name}}'
+        location: '{{var_location}}'
+        parameters:
+            location: 
+                value: '{{var_location}}'
+            storageaccounttype: 
+                value: '{{var_storageaccounttype}}'
+            storageaccountname:
+                value: '{{var_storageaccountname}}'
+        template_link: '{{var_templatelink_StorageAccount}}'
+      register: Storage
+
+    - name: Az command to fetch SQL Server Name from Shared Key Vault
+      shell: >
+            az storage account show-connection-string --name "{{var_storageaccountname}}" --output tsv 
+      register: connect
+
+    - name: Az command to fetch SQL Server Name from Shared Key Vault
+      shell: >
+            az webapp config connection-string set --connection-string-type "SQLAzure" --settings storagestring="{{connect.stdout}}" --name "{{var_webSiteName}}" --resource-group "{{var_resource_group_name}}"
+      register: connect

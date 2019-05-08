@@ -1,0 +1,19 @@
+
+For Ansible Playbook:
+
+    - name: Az command to fetch SQL Server Name from Shared Key Vault
+      shell: >
+            az storage account show-connection-string --name "{{var_storageaccountname}}" --output tsv 
+      register: connect
+
+    - name: Az command to fetch SQL Server Name from Shared Key Vault
+      shell: >
+            az webapp config connection-string set --connection-string-type "SQLAzure" --settings storagestring="{{connect.stdout}}" --name "{{var_webSiteName}}" --resource-group "{{var_resource_group_name}}"
+      register: connect
+
+======================================================================================================================================================================
+
+From Azue CLI Portal:
+
+cost="$(az storage account show-connection-string --name "testmukeshstorage" --output tsv)"
+az webapp config connection-string set --connection-string-type "SQLAzure" --settings storagestring="$cost" --name "testwebappd11" --resource-group "POCRD12DD"
