@@ -75,12 +75,12 @@
         template_link: '{{var_templatelink_StorageAccount}}'
       register: Storage
 
-    - name: Az command to fetch SQL Server Name from Shared Key Vault
+    - name: Az command to get the connection string of Storage Account.
       shell: >
             az storage account show-connection-string --name "{{var_storageaccountname}}" --output tsv 
       register: connect
 
-    - name: Az command to fetch SQL Server Name from Shared Key Vault
+    - name: Az command to add storage connection string in WebApp Settings.
       shell: >
             az webapp config connection-string set --connection-string-type "SQLAzure" --settings storagestring="{{connect.stdout}}" --name "{{var_webSiteName}}" --resource-group "{{var_resource_group_name}}"
       register: connect
