@@ -1,12 +1,15 @@
 
 For Ansible Playbook:
 
-    - name: Az command to fetch SQL Server Name from Shared Key Vault
+
+For Ansible Playbook:
+
+    - name: Az command to get connection string of storage account from portal.
       shell: >
             az storage account show-connection-string --name "{{var_storageaccountname}}" --output tsv 
       register: connect
 
-    - name: Az command to fetch SQL Server Name from Shared Key Vault
+    - name: AAz command to add Storage connection string in Webapp Settings.
       shell: >
             az webapp config connection-string set --connection-string-type "SQLAzure" --settings storagestring="{{connect.stdout}}" --name "{{var_webSiteName}}" --resource-group "{{var_resource_group_name}}"
       register: connect
