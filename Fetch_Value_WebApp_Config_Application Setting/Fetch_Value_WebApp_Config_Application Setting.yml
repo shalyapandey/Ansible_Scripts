@@ -1,0 +1,32 @@
+- name: ARM Deployment PLAYBOOK
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    var_web_app_name: EUWDCBT001WAP01
+    var_resource_Group: EUWDCBT001RSG01
+          
+  tasks:
+
+  - name: AZ Login to Azure
+    shell: >
+           az login --service-principal
+           -u "{{ AZURE_RM_CLIENTID | mandatory }}"
+           -p "{{ AZURE_RM_SECRET | mandatory }}"
+           --tenant "{{ AZURE_RM_TENANTID | mandatory }}"
+
+  - name: Fetch value for Client Secret.
+    shell: >
+            echo $(az webapp config appsettings list --name EUWDCBT001WAP01 --resource-group EUWDCBT001RSG01 --subscription 268e99fc-8fa3-4b4b-9055-24598924c68c --query "[?contains(name, 'ClientSecret')]".value --outpu tsv)
+            register: Client_Secret
+
+  - name: Fetch value for Secret URI.
+    shell: >
+            echo $(az webapp config appsettings list --name EUWDCBT001WAP01 --resource-group EUWDCBT001RSG01 --subscription 268e99fc-8fa3-4b4b-9055-24598924c68c --query "[?contains(name, 'SecretUri')]".value --outpu tsv)
+            register: Secret_Uri
+
+  - name: Fetch value for VaultClientId.
+    shell: >
+            echo $(az webapp config appsettings list --name EUWDCBT001WAP01 --resource-group EUWDCBT001RSG01 --subscription 268e99fc-8fa3-4b4b-9055-24598924c68c --query "[?contains(name, 'VaultClientId')]".value --outpu tsv)
+            register: VaultClient_Id
+  
